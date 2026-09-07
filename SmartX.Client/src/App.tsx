@@ -1,10 +1,7 @@
+import DashboardPage from './pages/DashboardPage'
+
 function App() {
-  return (
-    <div>
-      <h1>Smart-X</h1>
-      <p>IoT Data Ingestion and Validation Gateway</p>
-    </div>
-  )
+  return <DashboardPage />
 }
 
 export default App
