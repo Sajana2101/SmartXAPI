@@ -1,14 +1,28 @@
+using System.Text.Json.Serialization;
+using SmartX.Api.Repositories;
+
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
+builder.Services
+    .AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(
+            new JsonStringEnumConverter());
+    });
+
 builder.Services.AddOpenApi();
+
+builder.Services.AddSingleton<ISensorRepository, InMemorySensorRepository>();
 
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("SmartXClient", policy =>
     {
         policy
-            .WithOrigins("http://localhost:5174")
+            .WithOrigins(
+                "http://localhost:5173",
+                "http://localhost:5174")
             .AllowAnyHeader()
             .AllowAnyMethod();
     });
