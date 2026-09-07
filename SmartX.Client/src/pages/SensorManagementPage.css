@@ -1,0 +1,308 @@
+.sensor-page {
+  min-height: 100vh;
+  background: #f4f7fb;
+  color: #172033;
+}
+
+.sensor-header {
+  padding: 40px 8%;
+  background: #ffffff;
+  border-bottom: 1px solid #dde3ec;
+}
+
+.back-button {
+  margin-bottom: 30px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: #2269e8;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.sensor-eyebrow {
+  margin: 0 0 8px;
+  color: #2269e8;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+
+.sensor-header h1 {
+  margin: 0;
+  font-size: 36px;
+}
+
+.sensor-header p:last-child {
+  margin: 12px 0 0;
+  color: #667085;
+}
+
+.sensor-main {
+  display: grid;
+  grid-template-columns: minmax(340px, 0.85fr) minmax(450px, 1.15fr);
+  gap: 28px;
+  padding: 40px 8%;
+}
+
+.registration-panel,
+.registered-panel {
+  height: fit-content;
+  padding: 30px;
+  border: 1px solid #dde3ec;
+  border-radius: 16px;
+  background: #ffffff;
+}
+
+.section-heading,
+.registered-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 26px;
+}
+
+.section-heading h2,
+.registered-heading h2 {
+  margin: 4px 0 0;
+}
+
+.section-number {
+  margin: 0;
+  color: #98a2b3;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.editing-badge,
+.sensor-count {
+  padding: 7px 10px;
+  border-radius: 7px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.editing-badge {
+  background: #fff4df;
+  color: #a66400;
+}
+
+.sensor-count {
+  background: #eaf2ff;
+  color: #2269e8;
+}
+
+.sensor-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.full-width {
+  grid-column: 1 / -1;
+}
+
+.form-group label {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 12px 13px;
+  border: 1px solid #cfd6e1;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #172033;
+  outline: none;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  border-color: #2269e8;
+  box-shadow: 0 0 0 3px rgba(34, 105, 232, 0.1);
+}
+
+.form-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 5px;
+}
+
+.save-button,
+.cancel-button {
+  padding: 12px 18px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.save-button {
+  border: none;
+  background: #2269e8;
+  color: #ffffff;
+}
+
+.save-button:hover {
+  background: #1859cb;
+}
+
+.save-button:disabled {
+  opacity: 0.65;
+  cursor: wait;
+}
+
+.cancel-button {
+  border: 1px solid #ccd3dd;
+  background: #ffffff;
+  color: #475467;
+}
+
+.message {
+  margin-bottom: 20px;
+  padding: 12px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.error-message {
+  background: #fff0f0;
+  color: #b42318;
+}
+
+.success-message {
+  background: #ecfdf3;
+  color: #027a48;
+}
+
+.sensor-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.sensor-card {
+  padding: 22px;
+  border: 1px solid #dde3ec;
+  border-radius: 12px;
+}
+
+.sensor-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.sensor-card h3 {
+  margin: 10px 0 0;
+  font-size: 18px;
+}
+
+.category-badge {
+  padding: 5px 8px;
+  border-radius: 6px;
+  background: #eef4ff;
+  color: #2269e8;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.sensor-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.sensor-actions button {
+  padding: 7px 11px;
+  border: 1px solid #ccd3dd;
+  border-radius: 6px;
+  background: #ffffff;
+  cursor: pointer;
+}
+
+.sensor-actions .delete-button {
+  border-color: #f1b4b4;
+  color: #b42318;
+}
+
+.sensor-details {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin: 22px 0 0;
+}
+
+.sensor-details div {
+  padding-top: 12px;
+  border-top: 1px solid #edf0f4;
+}
+
+.sensor-details dt {
+  margin-bottom: 5px;
+  color: #98a2b3;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.sensor-details dd {
+  margin: 0;
+  color: #344054;
+  font-size: 14px;
+}
+
+.empty-state {
+  padding: 55px 20px;
+  border: 1px dashed #ccd3dd;
+  border-radius: 12px;
+  text-align: center;
+  color: #667085;
+}
+
+.empty-state h3 {
+  margin-top: 0;
+  color: #344054;
+}
+
+@media (max-width: 1000px) {
+  .sensor-main {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 650px) {
+  .sensor-header,
+  .sensor-main {
+    padding-left: 6%;
+    padding-right: 6%;
+  }
+
+  .sensor-header h1 {
+    font-size: 28px;
+  }
+
+  .sensor-form {
+    grid-template-columns: 1fr;
+  }
+
+  .full-width {
+    grid-column: auto;
+  }
+
+  .sensor-card-top {
+    flex-direction: column;
+  }
+
+  .sensor-details {
+    grid-template-columns: 1fr;
+  }
+}
