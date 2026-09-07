@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using SmartX.Api.Repositories;
+using SmartX.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +15,8 @@ builder.Services
 builder.Services.AddOpenApi();
 
 builder.Services.AddSingleton<ISensorRepository, InMemorySensorRepository>();
+
+builder.Services.AddSingleton<ITelemetryStore, TelemetryStore>();
 
 builder.Services.AddCors(options =>
 {
