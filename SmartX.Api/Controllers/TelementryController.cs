@@ -128,5 +128,28 @@ namespace SmartX.Api.Controllers
         {
             return Ok(_telemetryStore.GetBoolPackets());
         }
+
+
+        [HttpGet("power/calculate")]
+        public ActionResult<PowerCalculationResponse> CalculatePower(
+    int first,
+    int second)
+        {
+            PowerReading firstReading = new(first);
+            PowerReading secondReading = new(second);
+
+            PowerReading combined = firstReading + secondReading;
+            PowerReading delta = secondReading - firstReading;
+
+            PowerCalculationResponse response = new()
+            {
+                FirstReading = firstReading.Watts,
+                SecondReading = secondReading.Watts,
+                CombinedPower = combined.Watts,
+                Delta = delta.Watts
+            };
+
+            return Ok(response);
+        }
     }
 }

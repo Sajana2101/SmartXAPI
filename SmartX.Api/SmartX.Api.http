@@ -1,6 +1,14 @@
-@SmartX.Api_HostAddress = http://localhost:5011
+@SmartX_Api_HostAddress = https://localhost:7179
 
-GET {{SmartX.Api_HostAddress}}/weatherforecast/
-Accept: application/json
+POST {{SmartX_Api_HostAddress}}/api/telemetry/float
+Content-Type: application/json
+
+{
+  "sensorId": "474f0c79-8ac1-4522-b7af-f1cb36a3805e",
+  "metric": "Temperature",
+  "value": 24.7
+}
 
 ###
+
+GET {{SmartX_Api_HostAddress}}/api/telemetry/float
