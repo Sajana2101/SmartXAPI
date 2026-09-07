@@ -1,34 +1,32 @@
+var builder = WebApplication.CreateBuilder(args);
 
-namespace SmartX.Api
+builder.Services.AddControllers();
+builder.Services.AddOpenApi();
+
+builder.Services.AddCors(options =>
 {
-    public class Program
+    options.AddPolicy("SmartXClient", policy =>
     {
-        public static void Main(string[] args)
-        {
-            var builder = WebApplication.CreateBuilder(args);
+        policy
+            .WithOrigins("http://localhost:5174")
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
 
-            // Add services to the container.
+var app = builder.Build();
 
-            builder.Services.AddControllers();
-            // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-            builder.Services.AddOpenApi();
-
-            var app = builder.Build();
-
-            // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
-            {
-                app.MapOpenApi();
-            }
-
-            app.UseHttpsRedirection();
-
-            app.UseAuthorization();
-
-
-            app.MapControllers();
-
-            app.Run();
-        }
-    }
+if (app.Environment.IsDevelopment())
+{
+    app.MapOpenApi();
 }
+
+app.UseHttpsRedirection();
+
+app.UseCors("SmartXClient");
+
+app.UseAuthorization();
+
+app.MapControllers();
+
+app.Run();
