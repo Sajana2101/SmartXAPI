@@ -2,7 +2,11 @@ import { useEffect, useState } from 'react'
 import { getApiHealth } from '../services/apiService'
 import './DashboardPage.css'
 
-function DashboardPage() {
+interface DashboardPageProps {
+  onOpenSensorModule: () => void
+}
+
+function DashboardPage({onOpenSensorModule,}:DashboardPageProps) {
   const [apiConnected, setApiConnected] = useState(false)
   const [apiChecked, setApiChecked] = useState(false)
 
@@ -71,9 +75,13 @@ function DashboardPage() {
                 sensor activity.
               </p>
 
-              <button className="primary-button">
-                Open Module
-              </button>
+             <button
+  className="primary-button"
+  type="button"
+  onClick={onOpenSensorModule}
+>
+  Open Module
+</button>
             </div>
           </article>
 
