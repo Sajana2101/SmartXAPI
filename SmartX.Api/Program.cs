@@ -17,6 +17,7 @@ builder.Services.AddOpenApi();
 builder.Services.AddSingleton<ISensorRepository, InMemorySensorRepository>();
 
 builder.Services.AddSingleton<ITelemetryStore, TelemetryStore>();
+builder.Services.AddSingleton<TelemetryHistoryProcessor>();
 
 builder.Services.AddCors(options =>
 {

@@ -12,15 +12,37 @@ namespace SmartX.Api.Controllers
     {
         private readonly ITelemetryStore _telemetryStore;
         private readonly ISensorRepository _sensorRepository;
+        private readonly TelemetryHistoryProcessor _historyProcessor;
 
         public TelemetryController(
             ITelemetryStore telemetryStore,
-            ISensorRepository sensorRepository)
+            ISensorRepository sensorRepository,
+            TelemetryHistoryProcessor historyProcessor)
         {
             _telemetryStore = telemetryStore;
             _sensorRepository = sensorRepository;
+            _historyProcessor = historyProcessor;
         }
+        [HttpGet("history/demo")]
+        public ActionResult<object> GetHistoryDemo()
+        {
+            float[][] historicalBatches =
+            {
+        new float[] { 21.5f, 21.8f, 22.0f },
+        new float[] { 22.4f, 22.7f },
+        new float[] { 23.1f, 23.5f, 23.7f, 24.0f }
+    };
 
+            List<float> processedReadings =
+                _historyProcessor.ConvertBatchesToList(historicalBatches);
+
+            return Ok(new
+            {
+                batchCount = historicalBatches.Length,
+                readingCount = processedReadings.Count,
+                readings = processedReadings
+            });
+        }
         [HttpPost("float")]
         public async Task<ActionResult<TelemetryPacket<float>>> AddFloat(
             FloatTelemetryRequest request)
