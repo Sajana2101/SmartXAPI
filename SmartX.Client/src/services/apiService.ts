@@ -1,4 +1,10 @@
 import type {
+  TelemetryPacket,
+  TelemetryRequest,
+} from '../models/telemetry'
+
+
+import type {
   Sensor,
   SensorRequest,
 } from '../models/sensor'
@@ -103,4 +109,106 @@ export async function deleteSensor(
   if (!response.ok) {
     throw new Error(await getErrorMessage(response))
   }
+}
+
+export async function createFloatTelemetry(
+  request: TelemetryRequest<number>,
+): Promise<TelemetryPacket<number>> {
+  const response = await fetch(
+    `${API_BASE_URL}/api/telemetry/float`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(request),
+    },
+  )
+
+  if (!response.ok) {
+    throw new Error(await getErrorMessage(response))
+  }
+
+  return response.json()
+}
+
+export async function createIntTelemetry(
+  request: TelemetryRequest<number>,
+): Promise<TelemetryPacket<number>> {
+  const response = await fetch(
+    `${API_BASE_URL}/api/telemetry/int`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(request),
+    },
+  )
+
+  if (!response.ok) {
+    throw new Error(await getErrorMessage(response))
+  }
+
+  return response.json()
+}
+
+export async function createBoolTelemetry(
+  request: TelemetryRequest<boolean>,
+): Promise<TelemetryPacket<boolean>> {
+  const response = await fetch(
+    `${API_BASE_URL}/api/telemetry/bool`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(request),
+    },
+  )
+
+  if (!response.ok) {
+    throw new Error(await getErrorMessage(response))
+  }
+
+  return response.json()
+}
+
+export async function getFloatTelemetry():
+  Promise<TelemetryPacket<number>[]> {
+  const response = await fetch(
+    `${API_BASE_URL}/api/telemetry/float`,
+  )
+
+  if (!response.ok) {
+    throw new Error(await getErrorMessage(response))
+  }
+
+  return response.json()
+}
+
+export async function getIntTelemetry():
+  Promise<TelemetryPacket<number>[]> {
+  const response = await fetch(
+    `${API_BASE_URL}/api/telemetry/int`,
+  )
+
+  if (!response.ok) {
+    throw new Error(await getErrorMessage(response))
+  }
+
+  return response.json()
+}
+
+export async function getBoolTelemetry():
+  Promise<TelemetryPacket<boolean>[]> {
+  const response = await fetch(
+    `${API_BASE_URL}/api/telemetry/bool`,
+  )
+
+  if (!response.ok) {
+    throw new Error(await getErrorMessage(response))
+  }
+
+  return response.json()
 }
