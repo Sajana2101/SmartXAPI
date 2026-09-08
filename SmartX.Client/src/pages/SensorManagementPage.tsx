@@ -14,6 +14,7 @@ import './SensorManagementPage.css'
 
 interface SensorManagementPageProps {
   onBack: () => void
+  onOpenTelemetry: () => void
 }
 
 const emptyForm: SensorRequest = {
@@ -27,6 +28,7 @@ const emptyForm: SensorRequest = {
 
 function SensorManagementPage({
   onBack,
+onOpenTelemetry, 
 }: SensorManagementPageProps) {
   const [sensors, setSensors] = useState<Sensor[]>([])
   const [form, setForm] = useState<SensorRequest>(emptyForm)
@@ -220,6 +222,14 @@ function SensorManagementPage({
             Register and manage devices connected to the Smart-X
             gateway.
           </p>
+
+          <button
+  type="button"
+  className="save-button"
+  onClick={onOpenTelemetry}
+>
+  Open Telemetry Ingestion
+</button>
         </div>
       </header>
 

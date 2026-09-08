@@ -78,9 +78,10 @@ function TelemetryPage({
       }
 
       if (selectedSensor.category === 'PowerConsumption') {
-        const numericValue = Number.parseInt(value, 10)
+        const numericValue = Number(value)
 
-        if (Number.isNaN(numericValue)) {
+        if ( Number.isNaN(numericValue) ||
+  !Number.isInteger(numericValue)) {
           setError('Power telemetry requires an integer.')
           return
         }
