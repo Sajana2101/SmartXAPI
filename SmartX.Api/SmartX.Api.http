@@ -12,3 +12,6 @@ Content-Type: application/json
 ###
 
 GET {{SmartX_Api_HostAddress}}/api/telemetry/float
+###
+
+POST {{SmartX_Api_HostAddress}}/api/telemetry/seed/100

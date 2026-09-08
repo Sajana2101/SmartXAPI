@@ -13,15 +13,40 @@ namespace SmartX.Api.Controllers
         private readonly ITelemetryStore _telemetryStore;
         private readonly ISensorRepository _sensorRepository;
         private readonly TelemetryHistoryProcessor _historyProcessor;
+        private readonly TelemetrySeeder _telemetrySeeder;
 
         public TelemetryController(
             ITelemetryStore telemetryStore,
             ISensorRepository sensorRepository,
-            TelemetryHistoryProcessor historyProcessor)
+            TelemetryHistoryProcessor historyProcessor,
+            TelemetrySeeder telemetrySeeder)
         {
             _telemetryStore = telemetryStore;
             _sensorRepository = sensorRepository;
             _historyProcessor = historyProcessor;
+            _telemetrySeeder = telemetrySeeder;
+        }
+        [HttpPost("seed/{readingsPerSensor:int}")]
+        public async Task<IActionResult> SeedTelemetry(
+    int readingsPerSensor)
+        {
+            if (readingsPerSensor < 1 ||
+                readingsPerSensor > 10000)
+            {
+                return BadRequest(new
+                {
+                    message =
+                        "Readings per sensor must be between 1 and 10000."
+                });
+            }
+
+            int created =
+                await _telemetrySeeder.SeedAsync(readingsPerSensor);
+
+            return Ok(new
+            {
+                readingsCreated = created
+            });
         }
         [HttpGet("history/demo")]
         public ActionResult<object> GetHistoryDemo()

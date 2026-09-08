@@ -19,6 +19,7 @@ builder.Services.AddSingleton<ISensorRepository, InMemorySensorRepository>();
 builder.Services.AddSingleton<ITelemetryStore, TelemetryStore>();
 builder.Services.AddSingleton<TelemetryHistoryProcessor>();
 builder.Services.AddSingleton<DeploymentValidator>();
+builder.Services.AddSingleton<TelemetrySeeder>();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("SmartXClient", policy =>
