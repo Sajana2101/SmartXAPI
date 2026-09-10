@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using SmartX.Api.Repositories;
 using SmartX.Api.Services;
+using SmartX.Api.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -32,6 +33,17 @@ builder.Services.AddCors(options =>
             .AllowAnyMethod();
     });
 });
+builder.Services.Configure<AttachmentOptions>(
+    builder.Configuration.GetSection(
+        AttachmentOptions.SectionName));
+
+builder.Services.AddSingleton<
+    IFileEncryptionService,
+    AesFileEncryptionService>();
+
+builder.Services.AddSingleton<
+    IAttachmentService,
+    AttachmentService>();
 
 var app = builder.Build();
 
