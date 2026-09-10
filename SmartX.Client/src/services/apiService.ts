@@ -1,4 +1,12 @@
 import type {
+  DeviceAttachment,
+} from '../models/attachment'
+
+import type {
+  TelemetryDashboard,
+} from '../models/telemetryDashboard'
+
+import type {
   TelemetryPacket,
   TelemetryRequest,
 } from '../models/telemetry'
@@ -211,4 +219,120 @@ export async function getBoolTelemetry():
   }
 
   return response.json()
+}
+export async function getAttachments(
+  sensorId: string,
+): Promise<DeviceAttachment[]> {
+  const response = await fetch(
+    `${API_BASE_URL}/api/attachments/sensor/${sensorId}`,
+  )
+
+  if (!response.ok) {
+    throw new Error(await getErrorMessage(response))
+  }
+
+  return response.json()
+}
+
+export async function uploadAttachment(
+  sensorId: string,
+  file: File,
+): Promise<DeviceAttachment> {
+  const formData = new FormData()
+
+  formData.append('file', file)
+
+  const response = await fetch(
+    `${API_BASE_URL}/api/attachments/sensor/${sensorId}`,
+    {
+      method: 'POST',
+      body: formData,
+    },
+  )
+
+  if (!response.ok) {
+    throw new Error(await getErrorMessage(response))
+  }
+
+  return response.json()
+}
+
+export async function downloadAttachment(
+  attachment: DeviceAttachment,
+): Promise<void> {
+  const response = await fetch(
+    `${API_BASE_URL}/api/attachments/${attachment.id}/download`,
+  )
+
+  if (!response.ok) {
+    throw new Error(await getErrorMessage(response))
+  }
+
+  const blob = await response.blob()
+
+  const url = URL.createObjectURL(blob)
+
+  const anchor = document.createElement('a')
+
+  anchor.href = url
+  anchor.download = attachment.fileName
+
+  document.body.appendChild(anchor)
+
+  anchor.click()
+
+  anchor.remove()
+
+  URL.revokeObjectURL(url)
+}
+
+export async function deleteAttachment(
+  id: string,
+): Promise<void> {
+  const response = await fetch(
+    `${API_BASE_URL}/api/attachments/${id}`,
+    {
+      method: 'DELETE',
+    },
+  )
+
+  if (!response.ok) {
+    throw new Error(await getErrorMessage(response))
+  }
+}
+export async function getTelemetryDashboard():
+  Promise<TelemetryDashboard> {
+  const response = await fetch(
+    `${API_BASE_URL}/api/telemetry-dashboard`,
+  )
+
+  if (!response.ok) {
+    throw new Error(
+      await getErrorMessage(response),
+    )
+  }
+
+  return response.json()
+}
+
+export async function seedTelemetry(
+  readingsPerSensor: number,
+): Promise<number> {
+  const response = await fetch(
+    `${API_BASE_URL}/api/telemetry/seed/${readingsPerSensor}`,
+    {
+      method: 'POST',
+    },
+  )
+
+  if (!response.ok) {
+    throw new Error(
+      await getErrorMessage(response),
+    )
+  }
+
+  const result =
+    await response.json()
+
+  return result.readingsCreated
 }
