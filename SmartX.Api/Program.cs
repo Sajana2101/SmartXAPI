@@ -44,6 +44,8 @@ builder.Services.AddSingleton<
 builder.Services.AddSingleton<
     IAttachmentService,
     AttachmentService>();
+builder.Services.AddSingleton<
+    TelemetryDashboardService>();
 
 var app = builder.Build();
 
