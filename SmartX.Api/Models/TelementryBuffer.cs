@@ -2,32 +2,74 @@
 {
     public class TelemetryBuffer<T>
     {
-        private readonly List<TelemetryPacket<T>> _items = new();
+        private readonly
+            List<TelemetryPacket<T>>
+            _items =
+                new();
 
-        public int Count => _items.Count;
+        private readonly object
+            _lock =
+                new();
 
-        public void Add(TelemetryPacket<T> packet)
+        public int Count
         {
-            _items.Add(packet);
+            get
+            {
+                lock (_lock)
+                {
+                    return _items.Count;
+                }
+            }
         }
 
-        public IReadOnlyList<TelemetryPacket<T>> GetAll()
+        public void Add(
+            TelemetryPacket<T> packet)
         {
-            return _items.AsReadOnly();
+            lock (_lock)
+            {
+                _items.Add(packet);
+            }
         }
 
-        public IReadOnlyList<TelemetryPacket<T>> GetBySensor(Guid sensorId)
+        public IReadOnlyList<
+            TelemetryPacket<T>>
+            GetAll()
         {
-            return _items
-                .Where(packet => packet.SensorId == sensorId)
-                .OrderByDescending(packet => packet.TimestampUtc)
-                .ToList()
-                .AsReadOnly();
+            lock (_lock)
+            {
+                return _items
+                    .OrderByDescending(
+                        packet =>
+                            packet.TimestampUtc)
+                    .ToList();
+            }
+        }
+
+        public IReadOnlyList<
+            TelemetryPacket<T>>
+            GetBySensor(
+                Guid sensorId)
+        {
+            lock (_lock)
+            {
+                return _items
+                    .Where(
+                        packet =>
+                            packet.SensorId ==
+                            sensorId)
+                    .OrderByDescending(
+                        packet =>
+                            packet.TimestampUtc)
+                    .ToList();
+            }
         }
 
         public void Clear()
         {
-            _items.Clear();
+            lock (_lock)
+            {
+                _items.Clear();
+            }
         }
     }
 }

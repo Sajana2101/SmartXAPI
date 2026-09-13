@@ -253,13 +253,7 @@ onOpenAttachments,
   </button>
 </div>
 
-          <button
-  type="button"
-  className="save-button"
-  onClick={onOpenTelemetry}
->
-  Open Telemetry Ingestion
-</button>
+
         </div>
       </header>
 
