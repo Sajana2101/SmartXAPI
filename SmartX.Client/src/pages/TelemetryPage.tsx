@@ -94,20 +94,19 @@ function TelemetryPage({
       }
 
       if (selectedSensor.category === 'Actuator') {
-        if (
-          value.toLowerCase() !== 'true' &&
-          value.toLowerCase() !== 'false'
-        ) {
-          setError(
-            'Actuator telemetry must be true or false.',
-          )
-          return
-        }
+         const normalizedValue = value.trim().toLowerCase();
+
+         if (normalizedValue !== "true" && normalizedValue !== "false") {
+    setMessage("Actuator value must be true or false.");
+    return;
+  }
+
+         const boolValue = normalizedValue === "true";
 
         await createBoolTelemetry({
-          sensorId,
-          metric,
-          value: value.toLowerCase() === 'true',
+          sensorId: selectedSensor.id,
+          metric: "ValveState",
+          value: boolValue
         })
       }
 
