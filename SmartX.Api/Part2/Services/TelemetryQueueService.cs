@@ -6,18 +6,22 @@ namespace SmartX.Api.Part2.Services
 {
     public class TelemetryQueueService
     {
-        private readonly Queue<Action<ITelemetryStore>> _queue = new();
+        private readonly Queue<Action> _queue = new();
 
         private readonly ITelemetryStore _telemetryStore;
+
+        private readonly SortedTelemetryHistoryService _history;
 
         private readonly object _lock = new();
 
         private long _processedCount;
 
         public TelemetryQueueService(
-            ITelemetryStore telemetryStore)
+            ITelemetryStore telemetryStore,
+            SortedTelemetryHistoryService history)
         {
             _telemetryStore = telemetryStore;
+            _history = history;
         }
 
         public int PendingCount
@@ -46,7 +50,16 @@ namespace SmartX.Api.Part2.Services
         {
             lock (_lock)
             {
-                _queue.Enqueue(store => store.AddFloat(packet));
+                _queue.Enqueue(() =>
+                {
+                    _telemetryStore.AddFloat(packet);
+
+                    _history.Record(
+                        packet.SensorId,
+                        packet.Metric,
+                        packet.Value,
+                        packet.TimestampUtc);
+                });
             }
         }
 
@@ -54,7 +67,16 @@ namespace SmartX.Api.Part2.Services
         {
             lock (_lock)
             {
-                _queue.Enqueue(store => store.AddInt(packet));
+                _queue.Enqueue(() =>
+                {
+                    _telemetryStore.AddInt(packet);
+
+                    _history.Record(
+                        packet.SensorId,
+                        packet.Metric,
+                        packet.Value,
+                        packet.TimestampUtc);
+                });
             }
         }
 
@@ -62,7 +84,16 @@ namespace SmartX.Api.Part2.Services
         {
             lock (_lock)
             {
-                _queue.Enqueue(store => store.AddBool(packet));
+                _queue.Enqueue(() =>
+                {
+                    _telemetryStore.AddBool(packet);
+
+                    _history.Record(
+                        packet.SensorId,
+                        packet.Metric,
+                        packet.Value,
+                        packet.TimestampUtc);
+                });
             }
         }
 
@@ -80,9 +111,9 @@ namespace SmartX.Api.Part2.Services
 
                 while (_queue.Count > 0 && processed < maximum)
                 {
-                    Action<ITelemetryStore> operation = _queue.Peek();
+                    Action operation = _queue.Peek();
 
-                    operation(_telemetryStore);
+                    operation();
 
                     _queue.Dequeue();
 
