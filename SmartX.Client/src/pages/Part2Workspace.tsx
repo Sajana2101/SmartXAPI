@@ -5,9 +5,11 @@ import PriorityAlertsPanel from './PriorityAlertsPanel'
 import DeviceIssuesPanel from './DeviceIssuesPanel'
 import TelemetryHistoryPanel from './TelemetryHistoryPanel'
 import PredictiveInsightsPanel from './PredictiveInsightsPanel'
+import OperationalHealthPanel from './OperationalHealthPanel'
 import './Part2Dashboard.css'
 
 type WorkspaceTab =
+  | 'health'
   | 'commands'
   | 'alerts'
   | 'issues'
@@ -22,6 +24,7 @@ const tabs: {
   id: WorkspaceTab
   title: string
 }[] = [
+  { id: 'health', title: 'Operational Health' },
   { id: 'commands', title: 'Device Commands' },
   { id: 'alerts', title: 'Priority Alerts' },
   { id: 'issues', title: 'Device Issues' },
@@ -32,10 +35,10 @@ const tabs: {
 export default function Part2Workspace({
   onBack,
 }: Part2WorkspaceProps) {
-  const [tab, setTab] = useState<WorkspaceTab>('commands')
+  const [tab, setTab] = useState<WorkspaceTab>('health')
 
   const [visited, setVisited] =
-    useState<WorkspaceTab[]>(['commands'])
+    useState<WorkspaceTab[]>(['health'])
 
   function changeTab(next: WorkspaceTab) {
     setTab(next)
@@ -54,8 +57,8 @@ export default function Part2Workspace({
           <div>
             <h1>Smart-X Command Centre</h1>
             <p>
-              Real-time device management, priority alerts,
-              telemetry processing, and predictive insights
+              Real-time device operations, telemetry monitoring,
+              fault detection, and predictive insights
             </p>
           </div>
 
@@ -71,7 +74,7 @@ export default function Part2Workspace({
 
         <nav
           className="p2-tabs"
-          aria-label="Part 2 modules"
+          aria-label="Smart-X Part 2 modules"
         >
           {tabs.map(item => (
             <button
@@ -87,9 +90,15 @@ export default function Part2Workspace({
           ))}
         </nav>
 
-        <div hidden={tab !== 'commands'}>
-          <DeviceCommandDashboard />
+        <div hidden={tab !== 'health'}>
+          <OperationalHealthPanel />
         </div>
+
+        {visited.includes('commands') && (
+          <div hidden={tab !== 'commands'}>
+            <DeviceCommandDashboard />
+          </div>
+        )}
 
         {visited.includes('alerts') && (
           <div hidden={tab !== 'alerts'}>
