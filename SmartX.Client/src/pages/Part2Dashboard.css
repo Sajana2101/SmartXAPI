@@ -211,3 +211,26 @@
     font-size: 23px;
   }
 }
+.p2-global-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 12px 22px;
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+  color: #14243a;
+}
+
+.p2-global-nav strong {
+  font-size: 19px;
+}
+
+.p2-global-nav .p2-actions {
+  margin-top: 0;
+}
+
+[hidden] {
+  display: none !important;
+}
