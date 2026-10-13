@@ -20,10 +20,12 @@ type AppView =
 function App() {
   const [view, setView] =
     useState<AppView>('dashboard')
+
   const [part2Visited, setPart2Visited] = useState(false)
 
   function navigate(next: AppView) {
     setView(next)
+
     if (next === 'part2') {
       setPart2Visited(true)
     }
@@ -68,6 +70,7 @@ function App() {
     return (
       <DashboardPage
         onOpenSensorModule={() => navigate('sensors')}
+        onOpenCommandCentre={() => navigate('part2')}
       />
     )
   }
@@ -77,16 +80,25 @@ function App() {
       <div hidden={view === 'part2'}>
         <div className="p2-global-nav">
           <strong>Smart-X</strong>
+
           <div className="p2-actions">
-            <button onClick={() => navigate('dashboard')}
-              className="p2-secondary">
+            <button
+              onClick={() => navigate('dashboard')}
+              className="p2-secondary"
+            >
               Home
             </button>
-            <button onClick={() => navigate('sensors')}
-              className="p2-secondary">
+
+            <button
+              onClick={() => navigate('sensors')}
+              className="p2-secondary"
+            >
               Sensors
             </button>
-            <button onClick={() => navigate('part2')}>
+
+            <button
+              onClick={() => navigate('part2')}
+            >
               Command Centre
             </button>
           </div>
