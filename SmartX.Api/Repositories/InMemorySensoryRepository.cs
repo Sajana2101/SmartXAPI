@@ -1,18 +1,24 @@
-﻿using SmartX.Api.Models;
+﻿
+using SmartX.Api.Models;
 
 namespace SmartX.Api.Repositories
 {
     public class InMemorySensorRepository : ISensorRepository
     {
-        private readonly List<Sensor> _sensors = new();
+        private readonly Dictionary<Guid, Sensor> _sensors = new();
+
+        private readonly Dictionary<string, Guid> _deviceIdentifiers =
+            new(StringComparer.OrdinalIgnoreCase);
+
         private readonly object _lock = new();
 
         public Task<IReadOnlyList<Sensor>> GetAllAsync()
         {
             lock (_lock)
             {
-                IReadOnlyList<Sensor> sensors = _sensors
+                IReadOnlyList<Sensor> sensors = _sensors.Values
                     .OrderByDescending(sensor => sensor.CreatedAtUtc)
+                    .Select(Clone)
                     .ToList();
 
                 return Task.FromResult(sensors);
@@ -23,22 +29,28 @@ namespace SmartX.Api.Repositories
         {
             lock (_lock)
             {
-                Sensor? sensor = _sensors.FirstOrDefault(sensor => sensor.Id == id);
-
-                return Task.FromResult(sensor);
+                return Task.FromResult(
+                    _sensors.TryGetValue(id, out Sensor? sensor)
+                        ? Clone(sensor)
+                        : null);
             }
         }
 
-        public Task<Sensor?> GetByDeviceIdentifierAsync(string deviceIdentifier)
+        public Task<Sensor?> GetByDeviceIdentifierAsync(
+            string deviceIdentifier)
         {
             lock (_lock)
             {
-                Sensor? sensor = _sensors.FirstOrDefault(sensor =>
-                    sensor.DeviceIdentifier.Equals(
-                        deviceIdentifier,
-                        StringComparison.OrdinalIgnoreCase));
+                if (!_deviceIdentifiers.TryGetValue(
+                    deviceIdentifier, out Guid id))
+                {
+                    return Task.FromResult<Sensor?>(null);
+                }
 
-                return Task.FromResult(sensor);
+                return Task.FromResult<Sensor?>(
+                    _sensors.TryGetValue(id, out Sensor? sensor)
+                        ? Clone(sensor)
+                        : null);
             }
         }
 
@@ -46,7 +58,20 @@ namespace SmartX.Api.Repositories
         {
             lock (_lock)
             {
-                _sensors.Add(sensor);
+                if (_sensors.ContainsKey(sensor.Id) ||
+                    _deviceIdentifiers.ContainsKey(
+                        sensor.DeviceIdentifier))
+                {
+                    throw new InvalidOperationException(
+                        "Sensor ID or device identifier already exists.");
+                }
+
+                Sensor stored = Clone(sensor);
+
+                _sensors.Add(stored.Id, stored);
+
+                _deviceIdentifiers.Add(
+                    stored.DeviceIdentifier, stored.Id);
             }
 
             return Task.CompletedTask;
@@ -56,14 +81,29 @@ namespace SmartX.Api.Repositories
         {
             lock (_lock)
             {
-                int index = _sensors.FindIndex(existing => existing.Id == sensor.Id);
-
-                if (index == -1)
+                if (!_sensors.TryGetValue(
+                    sensor.Id, out Sensor? existing))
                 {
                     return Task.FromResult(false);
                 }
 
-                _sensors[index] = sensor;
+                if (_deviceIdentifiers.TryGetValue(
+                    sensor.DeviceIdentifier, out Guid ownerId) &&
+                    ownerId != sensor.Id)
+                {
+                    throw new InvalidOperationException(
+                        "Device identifier already belongs to another sensor.");
+                }
+
+                _deviceIdentifiers.Remove(
+                    existing.DeviceIdentifier);
+
+                Sensor stored = Clone(sensor);
+
+                _sensors[sensor.Id] = stored;
+
+                _deviceIdentifiers[stored.DeviceIdentifier] =
+                    stored.Id;
 
                 return Task.FromResult(true);
             }
@@ -73,17 +113,32 @@ namespace SmartX.Api.Repositories
         {
             lock (_lock)
             {
-                Sensor? sensor = _sensors.FirstOrDefault(sensor => sensor.Id == id);
-
-                if (sensor is null)
+                if (!_sensors.Remove(id, out Sensor? removed))
                 {
                     return Task.FromResult(false);
                 }
 
-                _sensors.Remove(sensor);
+                _deviceIdentifiers.Remove(
+                    removed.DeviceIdentifier);
 
                 return Task.FromResult(true);
             }
+        }
+
+        private static Sensor Clone(Sensor sensor)
+        {
+            return new Sensor
+            {
+                Id = sensor.Id,
+                DeviceIdentifier = sensor.DeviceIdentifier,
+                DeploymentLocation = sensor.DeploymentLocation,
+                Room = sensor.Room,
+                Zone = sensor.Zone,
+                NodeId = sensor.NodeId,
+                Category = sensor.Category,
+                CreatedAtUtc = sensor.CreatedAtUtc,
+                UpdatedAtUtc = sensor.UpdatedAtUtc
+            };
         }
     }
 }
