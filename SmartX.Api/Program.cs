@@ -34,27 +34,17 @@ builder.Services.AddSingleton<PriorityAlertService>();
 builder.Services.AddSingleton<SortedTelemetryHistoryService>();
 builder.Services.AddSingleton<DeviceIssueTracker>();
 
-builder.Services.AddSingleton<
-    DeviceSearchHistoryService>();
+builder.Services.AddSingleton<DeviceSearchHistoryService>();
+builder.Services.AddSingleton<DeviceBehaviorAnalysisService>();
+builder.Services.AddSingleton<PredictiveRecommendationService>();
 
 builder.Services.AddSingleton<
-    DeviceBehaviorAnalysisService>();
+    IDeviceCommandService,
+    DeviceCommandService>();
 
-builder.Services.AddSingleton<
-    PredictiveRecommendationService>();
+builder.Services.AddSingleton<TelemetryDashboardService>();
 
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("SmartXClient", policy =>
-    {
-        policy
-            .WithOrigins(
-                "http://localhost:5173",
-                "http://localhost:5174")
-            .AllowAnyHeader()
-            .AllowAnyMethod();
-    });
-});
+builder.Services.AddHostedService<DeviceFaultMonitoringWorker>();
 
 builder.Services.Configure<AttachmentOptions>(
     builder.Configuration.GetSection(
@@ -68,12 +58,18 @@ builder.Services.AddSingleton<
     IAttachmentService,
     AttachmentService>();
 
-builder.Services.AddSingleton<
-    TelemetryDashboardService>();
-
-builder.Services.AddSingleton<
-    IDeviceCommandService,
-    DeviceCommandService>();
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("SmartXClient", policy =>
+    {
+        policy
+            .WithOrigins(
+                "http://localhost:5173",
+                "http://localhost:5174")
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
 
 var app = builder.Build();
 
