@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿
+using Microsoft.AspNetCore.Mvc;
 using SmartX.Api.DTOs;
 using SmartX.Api.Models;
 using SmartX.Api.Repositories;
@@ -11,28 +12,30 @@ namespace SmartX.Api.Controllers
     [Route("api/[controller]")]
     public class TelemetryController : ControllerBase
     {
-        private readonly ITelemetryStore _telemetryStore;
-        private readonly ISensorRepository _sensorRepository;
-        private readonly TelemetryHistoryProcessor _historyProcessor;
-        private readonly TelemetrySeeder _telemetrySeeder;
-        private readonly TelemetryQueueService _telemetryQueue;
+        private readonly ITelemetryStore _store;
+        private readonly ISensorRepository _sensors;
+        private readonly TelemetryHistoryProcessor _history;
+        private readonly TelemetrySeeder _seeder;
+        private readonly TelemetryQueueService _queue;
 
         public TelemetryController(
-     ITelemetryStore telemetryStore,
-     ISensorRepository sensorRepository,
-     TelemetryHistoryProcessor historyProcessor,
-     TelemetrySeeder telemetrySeeder,
-     TelemetryQueueService telemetryQueue)
+            ITelemetryStore store,
+            ISensorRepository sensors,
+            TelemetryHistoryProcessor history,
+            TelemetrySeeder seeder,
+            TelemetryQueueService queue)
         {
-            _telemetryStore = telemetryStore;
-            _sensorRepository = sensorRepository;
-            _historyProcessor = historyProcessor;
-            _telemetrySeeder = telemetrySeeder;
-            _telemetryQueue = telemetryQueue;
+            _store = store;
+            _sensors = sensors;
+            _history = history;
+            _seeder = seeder;
+            _queue = queue;
         }
+
         [HttpPost("seed/{readingsPerSensor:int}")]
         public async Task<IActionResult> SeedTelemetry(
-    int readingsPerSensor)
+            int readingsPerSensor,
+            CancellationToken cancellationToken)
         {
             if (readingsPerSensor < 1 ||
                 readingsPerSensor > 10000)
@@ -44,46 +47,78 @@ namespace SmartX.Api.Controllers
                 });
             }
 
-            int created =
-                await _telemetrySeeder.SeedAsync(readingsPerSensor);
-
-            return Ok(new
+            try
             {
-                readingsCreated = created
-            });
+                string baseUrl =
+                    $"{Request.Scheme}://{Request.Host}";
+
+                int created = await _seeder.SeedAsync(
+                    readingsPerSensor,
+                    baseUrl,
+                    cancellationToken);
+
+                return Ok(new
+                {
+                    readingsCreated = created,
+                    source = "HTTP API"
+                });
+            }
+            catch (HttpRequestException)
+            {
+                return StatusCode(502, new
+                {
+                    message =
+                        "Simulated device requests could not reach the API."
+                });
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new
+                {
+                    message = ex.Message
+                });
+            }
         }
+
         [HttpGet("history/demo")]
-        public ActionResult<object> GetHistoryDemo()
+        public IActionResult GetHistoryDemo()
         {
-            float[][] historicalBatches =
+            float[][] batches =
             {
-        new float[] { 21.5f, 21.8f, 22.0f },
-        new float[] { 22.4f, 22.7f },
-        new float[] { 23.1f, 23.5f, 23.7f, 24.0f }
-    };
+                new float[] { 21.5f, 21.8f, 22.0f },
+                new float[] { 22.4f, 22.7f },
+                new float[] { 23.1f, 23.5f, 23.7f, 24.0f }
+            };
 
-            List<float> processedReadings =
-                _historyProcessor.ConvertBatchesToList(historicalBatches);
+            List<float> readings =
+                _history.ConvertBatchesToList(batches);
 
             return Ok(new
             {
-                batchCount = historicalBatches.Length,
-                readingCount = processedReadings.Count,
-                readings = processedReadings
+                batchCount = batches.Length,
+                readingCount = readings.Count,
+                readings
             });
         }
+
         [HttpPost("float")]
-        public async Task<ActionResult<TelemetryPacket<float>>> AddFloat(
+        public async Task<IActionResult> AddFloat(
             FloatTelemetryRequest request)
         {
-            Sensor? sensor =
-                await _sensorRepository.GetByIdAsync(request.SensorId);
-
-            if (sensor is null)
+            if (await _sensors.GetByIdAsync(request.SensorId) is null)
             {
                 return NotFound(new
                 {
                     message = "Sensor could not be found."
+                });
+            }
+
+            if (string.IsNullOrWhiteSpace(request.Metric) ||
+                !float.IsFinite(request.Value))
+            {
+                return BadRequest(new
+                {
+                    message = "A valid metric and finite value are required."
                 });
             }
 
@@ -96,24 +131,29 @@ namespace SmartX.Api.Controllers
                 TimestampUtc = DateTime.UtcNow
             };
 
-            _telemetryQueue.EnqueueFloat(packet);
-            _telemetryQueue.ProcessPending();
+            _queue.EnqueueFloat(packet);
+            _queue.ProcessPending();
 
             return Ok(packet);
         }
 
         [HttpPost("int")]
-        public async Task<ActionResult<TelemetryPacket<int>>> AddInt(
+        public async Task<IActionResult> AddInt(
             IntTelemetryRequest request)
         {
-            Sensor? sensor =
-                await _sensorRepository.GetByIdAsync(request.SensorId);
-
-            if (sensor is null)
+            if (await _sensors.GetByIdAsync(request.SensorId) is null)
             {
                 return NotFound(new
                 {
                     message = "Sensor could not be found."
+                });
+            }
+
+            if (string.IsNullOrWhiteSpace(request.Metric))
+            {
+                return BadRequest(new
+                {
+                    message = "A valid metric is required."
                 });
             }
 
@@ -126,24 +166,29 @@ namespace SmartX.Api.Controllers
                 TimestampUtc = DateTime.UtcNow
             };
 
-            _telemetryQueue.EnqueueInt(packet);
-            _telemetryQueue.ProcessPending();
+            _queue.EnqueueInt(packet);
+            _queue.ProcessPending();
 
             return Ok(packet);
         }
 
         [HttpPost("bool")]
-        public async Task<ActionResult<TelemetryPacket<bool>>> AddBool(
+        public async Task<IActionResult> AddBool(
             BoolTelemetryRequest request)
         {
-            Sensor? sensor =
-                await _sensorRepository.GetByIdAsync(request.SensorId);
-
-            if (sensor is null)
+            if (await _sensors.GetByIdAsync(request.SensorId) is null)
             {
                 return NotFound(new
                 {
                     message = "Sensor could not be found."
+                });
+            }
+
+            if (string.IsNullOrWhiteSpace(request.Metric))
+            {
+                return BadRequest(new
+                {
+                    message = "A valid metric is required."
                 });
             }
 
@@ -156,38 +201,34 @@ namespace SmartX.Api.Controllers
                 TimestampUtc = DateTime.UtcNow
             };
 
-            _telemetryQueue.EnqueueBool(packet);
-            _telemetryQueue.ProcessPending();
+            _queue.EnqueueBool(packet);
+            _queue.ProcessPending();
 
             return Ok(packet);
         }
 
         [HttpGet("float")]
-        public ActionResult<
-            IReadOnlyList<TelemetryPacket<float>>> GetFloatPackets()
+        public IActionResult GetFloatPackets()
         {
-            return Ok(_telemetryStore.GetFloatPackets());
+            return Ok(_store.GetFloatPackets());
         }
 
         [HttpGet("int")]
-        public ActionResult<
-            IReadOnlyList<TelemetryPacket<int>>> GetIntPackets()
+        public IActionResult GetIntPackets()
         {
-            return Ok(_telemetryStore.GetIntPackets());
+            return Ok(_store.GetIntPackets());
         }
 
         [HttpGet("bool")]
-        public ActionResult<
-            IReadOnlyList<TelemetryPacket<bool>>> GetBoolPackets()
+        public IActionResult GetBoolPackets()
         {
-            return Ok(_telemetryStore.GetBoolPackets());
+            return Ok(_store.GetBoolPackets());
         }
 
-
         [HttpGet("power/calculate")]
-        public ActionResult<PowerCalculationResponse> CalculatePower(
-    int first,
-    int second)
+        public IActionResult CalculatePower(
+            int first,
+            int second)
         {
             PowerReading firstReading = new(first);
             PowerReading secondReading = new(second);
@@ -195,15 +236,13 @@ namespace SmartX.Api.Controllers
             PowerReading combined = firstReading + secondReading;
             PowerReading delta = secondReading - firstReading;
 
-            PowerCalculationResponse response = new()
+            return Ok(new PowerCalculationResponse
             {
                 FirstReading = firstReading.Watts,
                 SecondReading = secondReading.Watts,
                 CombinedPower = combined.Watts,
                 Delta = delta.Watts
-            };
-
-            return Ok(response);
+            });
         }
     }
 }
