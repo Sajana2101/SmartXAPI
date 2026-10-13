@@ -2,6 +2,7 @@ using System.Text.Json.Serialization;
 using SmartX.Api.Repositories;
 using SmartX.Api.Services;
 using SmartX.Api.Options;
+using SmartX.Api.Part2.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,6 +19,7 @@ builder.Services.AddOpenApi();
 builder.Services.AddSingleton<ISensorRepository, InMemorySensorRepository>();
 
 builder.Services.AddSingleton<ITelemetryStore, TelemetryStore>();
+builder.Services.AddSingleton<TelemetryQueueService>();
 builder.Services.AddSingleton<TelemetryHistoryProcessor>();
 builder.Services.AddSingleton<DeploymentValidator>();
 builder.Services.AddSingleton<TelemetrySeeder>();

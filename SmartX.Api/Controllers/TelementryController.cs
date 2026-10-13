@@ -3,6 +3,7 @@ using SmartX.Api.DTOs;
 using SmartX.Api.Models;
 using SmartX.Api.Repositories;
 using SmartX.Api.Services;
+using SmartX.Api.Part2.Services;
 
 namespace SmartX.Api.Controllers
 {
@@ -14,17 +15,20 @@ namespace SmartX.Api.Controllers
         private readonly ISensorRepository _sensorRepository;
         private readonly TelemetryHistoryProcessor _historyProcessor;
         private readonly TelemetrySeeder _telemetrySeeder;
+        private readonly TelemetryQueueService _telemetryQueue;
 
         public TelemetryController(
-            ITelemetryStore telemetryStore,
-            ISensorRepository sensorRepository,
-            TelemetryHistoryProcessor historyProcessor,
-            TelemetrySeeder telemetrySeeder)
+     ITelemetryStore telemetryStore,
+     ISensorRepository sensorRepository,
+     TelemetryHistoryProcessor historyProcessor,
+     TelemetrySeeder telemetrySeeder,
+     TelemetryQueueService telemetryQueue)
         {
             _telemetryStore = telemetryStore;
             _sensorRepository = sensorRepository;
             _historyProcessor = historyProcessor;
             _telemetrySeeder = telemetrySeeder;
+            _telemetryQueue = telemetryQueue;
         }
         [HttpPost("seed/{readingsPerSensor:int}")]
         public async Task<IActionResult> SeedTelemetry(
@@ -92,7 +96,8 @@ namespace SmartX.Api.Controllers
                 TimestampUtc = DateTime.UtcNow
             };
 
-            _telemetryStore.AddFloat(packet);
+            _telemetryQueue.EnqueueFloat(packet);
+            _telemetryQueue.ProcessPending();
 
             return Ok(packet);
         }
@@ -121,7 +126,8 @@ namespace SmartX.Api.Controllers
                 TimestampUtc = DateTime.UtcNow
             };
 
-            _telemetryStore.AddInt(packet);
+            _telemetryQueue.EnqueueInt(packet);
+            _telemetryQueue.ProcessPending();
 
             return Ok(packet);
         }
@@ -150,7 +156,8 @@ namespace SmartX.Api.Controllers
                 TimestampUtc = DateTime.UtcNow
             };
 
-            _telemetryStore.AddBool(packet);
+            _telemetryQueue.EnqueueBool(packet);
+            _telemetryQueue.ProcessPending();
 
             return Ok(packet);
         }
