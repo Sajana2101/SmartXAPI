@@ -1,3 +1,4 @@
+
 using System.Text.Json.Serialization;
 using SmartX.Api.Repositories;
 using SmartX.Api.Services;
@@ -17,9 +18,14 @@ builder.Services
 
 builder.Services.AddOpenApi();
 
-builder.Services.AddSingleton<ISensorRepository, InMemorySensorRepository>();
+builder.Services.AddSingleton<
+    ISensorRepository,
+    InMemorySensorRepository>();
 
-builder.Services.AddSingleton<ITelemetryStore, TelemetryStore>();
+builder.Services.AddSingleton<
+    ITelemetryStore,
+    TelemetryStore>();
+
 builder.Services.AddSingleton<TelemetryQueueService>();
 builder.Services.AddSingleton<TelemetryHistoryProcessor>();
 builder.Services.AddSingleton<DeploymentValidator>();
@@ -27,6 +33,16 @@ builder.Services.AddSingleton<TelemetrySeeder>();
 builder.Services.AddSingleton<PriorityAlertService>();
 builder.Services.AddSingleton<SortedTelemetryHistoryService>();
 builder.Services.AddSingleton<DeviceIssueTracker>();
+
+builder.Services.AddSingleton<
+    DeviceSearchHistoryService>();
+
+builder.Services.AddSingleton<
+    DeviceBehaviorAnalysisService>();
+
+builder.Services.AddSingleton<
+    PredictiveRecommendationService>();
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("SmartXClient", policy =>
@@ -39,6 +55,7 @@ builder.Services.AddCors(options =>
             .AllowAnyMethod();
     });
 });
+
 builder.Services.Configure<AttachmentOptions>(
     builder.Configuration.GetSection(
         AttachmentOptions.SectionName));
@@ -50,8 +67,10 @@ builder.Services.AddSingleton<
 builder.Services.AddSingleton<
     IAttachmentService,
     AttachmentService>();
+
 builder.Services.AddSingleton<
     TelemetryDashboardService>();
+
 builder.Services.AddSingleton<
     IDeviceCommandService,
     DeviceCommandService>();
