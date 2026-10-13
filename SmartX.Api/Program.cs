@@ -3,6 +3,7 @@ using SmartX.Api.Repositories;
 using SmartX.Api.Services;
 using SmartX.Api.Options;
 using SmartX.Api.Part2.Services;
+using SmartX.Api.Part2.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -51,6 +52,9 @@ builder.Services.AddSingleton<
     AttachmentService>();
 builder.Services.AddSingleton<
     TelemetryDashboardService>();
+builder.Services.AddSingleton<
+    IDeviceCommandService,
+    DeviceCommandService>();
 
 var app = builder.Build();
 
