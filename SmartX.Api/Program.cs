@@ -25,6 +25,7 @@ builder.Services.AddSingleton<DeploymentValidator>();
 builder.Services.AddSingleton<TelemetrySeeder>();
 builder.Services.AddSingleton<PriorityAlertService>();
 builder.Services.AddSingleton<SortedTelemetryHistoryService>();
+builder.Services.AddSingleton<DeviceIssueTracker>();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("SmartXClient", policy =>
