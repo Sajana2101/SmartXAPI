@@ -4,32 +4,46 @@ import DeviceCommandDashboard from './DeviceCommandDashboard'
 import PriorityAlertsPanel from './PriorityAlertsPanel'
 import DeviceIssuesPanel from './DeviceIssuesPanel'
 import TelemetryHistoryPanel from './TelemetryHistoryPanel'
+import PredictiveInsightsPanel from './PredictiveInsightsPanel'
 import './Part2Dashboard.css'
 
-type WorkspaceTab = 'commands' | 'alerts' | 'issues' | 'history'
+type WorkspaceTab =
+  | 'commands'
+  | 'alerts'
+  | 'issues'
+  | 'history'
+  | 'insights'
 
 interface Part2WorkspaceProps {
   onBack: () => void
 }
 
-const tabs: { id: WorkspaceTab; title: string }[] = [
+const tabs: {
+  id: WorkspaceTab
+  title: string
+}[] = [
   { id: 'commands', title: 'Device Commands' },
   { id: 'alerts', title: 'Priority Alerts' },
   { id: 'issues', title: 'Device Issues' },
   { id: 'history', title: 'Telemetry History' },
+  { id: 'insights', title: 'Automated Insights' },
 ]
 
 export default function Part2Workspace({
   onBack,
 }: Part2WorkspaceProps) {
   const [tab, setTab] = useState<WorkspaceTab>('commands')
+
   const [visited, setVisited] =
     useState<WorkspaceTab[]>(['commands'])
 
   function changeTab(next: WorkspaceTab) {
     setTab(next)
+
     setVisited(current =>
-      current.includes(next) ? current : [...current, next],
+      current.includes(next)
+        ? current
+        : [...current, next],
     )
   }
 
@@ -41,23 +55,33 @@ export default function Part2Workspace({
             <h1>Smart-X Command Centre</h1>
             <p>
               Real-time device management, priority alerts,
-              and telemetry processing
+              telemetry processing, and predictive insights
             </p>
           </div>
+
           <div className="p2-actions">
-            <button className="p2-secondary" onClick={onBack}>
+            <button
+              className="p2-secondary"
+              onClick={onBack}
+            >
               Back to Smart-X
             </button>
           </div>
         </header>
 
-        <nav className="p2-tabs" aria-label="Part 2 modules">
+        <nav
+          className="p2-tabs"
+          aria-label="Part 2 modules"
+        >
           {tabs.map(item => (
             <button
               key={item.id}
               className={tab === item.id ? 'active' : ''}
-              aria-current={tab === item.id ? 'page' : undefined}
-              onClick={() => changeTab(item.id)}>
+              aria-current={
+                tab === item.id ? 'page' : undefined
+              }
+              onClick={() => changeTab(item.id)}
+            >
               {item.title}
             </button>
           ))}
@@ -82,6 +106,12 @@ export default function Part2Workspace({
         {visited.includes('history') && (
           <div hidden={tab !== 'history'}>
             <TelemetryHistoryPanel />
+          </div>
+        )}
+
+        {visited.includes('insights') && (
+          <div hidden={tab !== 'insights'}>
+            <PredictiveInsightsPanel />
           </div>
         )}
       </div>
