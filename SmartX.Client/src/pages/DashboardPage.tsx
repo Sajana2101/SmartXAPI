@@ -1,12 +1,17 @@
+
 import { useEffect, useState } from 'react'
 import { getApiHealth } from '../services/apiService'
 import './DashboardPage.css'
 
 interface DashboardPageProps {
   onOpenSensorModule: () => void
+  onOpenCommandCentre: () => void
 }
 
-function DashboardPage({onOpenSensorModule,}:DashboardPageProps) {
+function DashboardPage({
+  onOpenSensorModule,
+  onOpenCommandCentre,
+}: DashboardPageProps) {
   const [apiConnected, setApiConnected] = useState(false)
   const [apiChecked, setApiChecked] = useState(false)
 
@@ -22,7 +27,7 @@ function DashboardPage({onOpenSensorModule,}:DashboardPageProps) {
       }
     }
 
-    checkApi()
+    void checkApi()
   }, [])
 
   return (
@@ -75,33 +80,38 @@ function DashboardPage({onOpenSensorModule,}:DashboardPageProps) {
                 sensor activity.
               </p>
 
-             <button
-  className="primary-button"
-  type="button"
-  onClick={onOpenSensorModule}
->
-  Open Module
-</button>
+              <button
+                className="primary-button"
+                type="button"
+                onClick={onOpenSensorModule}
+              >
+                Open Module
+              </button>
             </div>
           </article>
 
-          <article className="module-card disabled-card">
+          <article className="module-card active-card">
             <div className="module-number">02</div>
 
             <div className="module-content">
-              <span className="module-status disabled-status">
-                DISABLED
+              <span className="module-status active-status">
+                ACTIVE — PART 2
               </span>
 
               <h3>Real-Time Command Stream and History</h3>
 
               <p>
-                Device command streams and historical command tracking will
-                become available in Part 2.
+                Monitor live device operations, execute manual commands,
+                review command history, process priority alerts and
+                investigate predictive insights.
               </p>
 
-              <button className="disabled-button" disabled>
-                Available in Part 2
+              <button
+                className="primary-button"
+                type="button"
+                onClick={onOpenCommandCentre}
+              >
+                Open Module
               </button>
             </div>
           </article>
@@ -121,7 +131,11 @@ function DashboardPage({onOpenSensorModule,}:DashboardPageProps) {
                 available in the final PoE.
               </p>
 
-              <button className="disabled-button" disabled>
+              <button
+                className="disabled-button"
+                type="button"
+                disabled
+              >
                 Available in Final PoE
               </button>
             </div>

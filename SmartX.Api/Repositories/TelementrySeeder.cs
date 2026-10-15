@@ -1,27 +1,45 @@
-﻿using SmartX.Api.Models;
+﻿
+using System.Net.Http.Json;
+using SmartX.Api.Models;
 using SmartX.Api.Repositories;
 
 namespace SmartX.Api.Services
 {
     public class TelemetrySeeder
     {
-        private readonly ITelemetryStore _telemetryStore;
-        private readonly ISensorRepository _sensorRepository;
+        private readonly ISensorRepository _sensors;
+        private readonly HttpClient _client = new();
 
-        public TelemetrySeeder(
-            ITelemetryStore telemetryStore,
-            ISensorRepository sensorRepository)
+        public TelemetrySeeder(ISensorRepository sensors)
         {
-            _telemetryStore = telemetryStore;
-            _sensorRepository = sensorRepository;
+            _sensors = sensors;
         }
 
-        public async Task<int> SeedAsync(int readingsPerSensor)
+        public async Task<int> SeedAsync(
+            int readingsPerSensor,
+            string apiBaseUrl,
+            CancellationToken cancellationToken = default)
         {
-            IReadOnlyList<Sensor> sensors =
-                await _sensorRepository.GetAllAsync();
+            if (readingsPerSensor < 1 || readingsPerSensor > 10000)
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(readingsPerSensor));
+            }
 
-            Random random = new();
+            if (!Uri.TryCreate(
+                apiBaseUrl,
+                UriKind.Absolute,
+                out Uri? baseUri) ||
+                !baseUri.IsLoopback ||
+                (baseUri.Scheme != Uri.UriSchemeHttps &&
+                 baseUri.Scheme != Uri.UriSchemeHttp))
+            {
+                throw new ArgumentException(
+                    "The simulation API URL must be a local HTTP endpoint.");
+            }
+
+            IReadOnlyList<Sensor> sensors =
+                await _sensors.GetAllAsync();
 
             int created = 0;
 
@@ -29,55 +47,58 @@ namespace SmartX.Api.Services
             {
                 for (int i = 0; i < readingsPerSensor; i++)
                 {
-                    DateTime timestamp =
-                        DateTime.UtcNow.AddSeconds(-i);
+                    cancellationToken.ThrowIfCancellationRequested();
+
+                    string endpoint;
+                    object payload;
 
                     switch (sensor.Category)
                     {
                         case SensorCategory.Environmental:
-                            _telemetryStore.AddFloat(
-                                new TelemetryPacket<float>
-                                {
-                                    Id = Guid.NewGuid(),
-                                    SensorId = sensor.Id,
-                                    Metric = "Temperature",
-                                    Value =
-                                        (float)(18 +
-                                        random.NextDouble() * 18),
-                                    TimestampUtc = timestamp
-                                });
-
-                            created++;
+                            endpoint = "/api/telemetry/float";
+                            payload = new
+                            {
+                                sensorId = sensor.Id,
+                                metric = "temperature",
+                                value = Random.Shared.Next(180, 361) / 10.0
+                            };
                             break;
 
                         case SensorCategory.PowerConsumption:
-                            _telemetryStore.AddInt(
-                                new TelemetryPacket<int>
-                                {
-                                    Id = Guid.NewGuid(),
-                                    SensorId = sensor.Id,
-                                    Metric = "PowerWatts",
-                                    Value = random.Next(100, 2000),
-                                    TimestampUtc = timestamp
-                                });
-
-                            created++;
+                            endpoint = "/api/telemetry/int";
+                            payload = new
+                            {
+                                sensorId = sensor.Id,
+                                metric = "PowerWatts",
+                                value = Random.Shared.Next(100, 2001)
+                            };
                             break;
 
                         case SensorCategory.Actuator:
-                            _telemetryStore.AddBool(
-                                new TelemetryPacket<bool>
-                                {
-                                    Id = Guid.NewGuid(),
-                                    SensorId = sensor.Id,
-                                    Metric = "ValveState",
-                                    Value = random.Next(0, 2) == 1,
-                                    TimestampUtc = timestamp
-                                });
-
-                            created++;
+                            endpoint = "/api/telemetry/bool";
+                            payload = new
+                            {
+                                sensorId = sensor.Id,
+                                metric = "ValveState",
+                                value = Random.Shared.Next(0, 2) == 1
+                            };
                             break;
+
+                        default:
+                            continue;
                     }
+
+                    Uri destination = new(baseUri, endpoint);
+
+                    using HttpResponseMessage response =
+                        await _client.PostAsJsonAsync(
+                            destination,
+                            payload,
+                            cancellationToken);
+
+                    response.EnsureSuccessStatusCode();
+
+                    created++;
                 }
             }
 
