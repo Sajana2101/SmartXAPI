@@ -71,7 +71,7 @@ namespace SmartX.Api.Part2.Services
 
                 if (!sensor.IsConnected)
                 {
-                    bool added = _issues.Report(
+                    bool added = _issues.ReportAutomatic(
                         sensor.SensorId,
                         DeviceIssueType.Disconnected);
 
@@ -88,14 +88,14 @@ namespace SmartX.Api.Part2.Services
                 }
                 else
                 {
-                    _issues.Resolve(
+                    _issues.ResolveAutomatic(
                         sensor.SensorId,
                         DeviceIssueType.Disconnected);
                 }
 
                 if (sensor.IsAnomaly)
                 {
-                    bool added = _issues.Report(
+                    bool added = _issues.ReportAutomatic(
                         sensor.SensorId,
                         DeviceIssueType.Error);
 
@@ -112,7 +112,7 @@ namespace SmartX.Api.Part2.Services
                 }
                 else
                 {
-                    _issues.Resolve(
+                    _issues.ResolveAutomatic(
                         sensor.SensorId,
                         DeviceIssueType.Error);
                 }

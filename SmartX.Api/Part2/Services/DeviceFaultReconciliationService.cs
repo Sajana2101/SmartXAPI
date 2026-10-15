@@ -37,14 +37,14 @@ namespace SmartX.Api.Part2.Services
 
                 if (sensor.IsAnomaly)
                 {
-                    if (_tracker.Report(
+                    if (_tracker.ReportAutomatic(
                         sensor.SensorId,
                         DeviceIssueType.Error))
                     {
                         newErrors++;
                     }
                 }
-                else if (_tracker.Resolve(
+                else if (_tracker.ResolveAutomatic(
                     sensor.SensorId,
                     DeviceIssueType.Error))
                 {
@@ -53,14 +53,14 @@ namespace SmartX.Api.Part2.Services
 
                 if (!sensor.IsConnected)
                 {
-                    if (_tracker.Report(
+                    if (_tracker.ReportAutomatic(
                         sensor.SensorId,
                         DeviceIssueType.Disconnected))
                     {
                         newDisconnections++;
                     }
                 }
-                else if (_tracker.Resolve(
+                else if (_tracker.ResolveAutomatic(
                     sensor.SensorId,
                     DeviceIssueType.Disconnected))
                 {
