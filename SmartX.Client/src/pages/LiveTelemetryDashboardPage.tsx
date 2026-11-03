@@ -1,3 +1,4 @@
+
 import {
   useCallback,
   useEffect,
@@ -59,18 +60,18 @@ function LiveTelemetryDashboardPage({
     }, [])
 
   useEffect(() => {
-    loadDashboard()
+    const initialTimer = window.setTimeout(() => {
+      void loadDashboard()
+    }, 0)
 
-    const interval =
-      window.setInterval(
-        loadDashboard,
-        5000,
-      )
+    const interval = window.setInterval(() => {
+      void loadDashboard()
+    }, 5000)
 
-    return () =>
-      window.clearInterval(
-        interval,
-      )
+    return () => {
+      window.clearTimeout(initialTimer)
+      window.clearInterval(interval)
+    }
   }, [loadDashboard])
 
   async function generateReading() {

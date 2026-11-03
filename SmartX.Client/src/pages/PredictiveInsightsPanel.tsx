@@ -101,13 +101,18 @@ export default function PredictiveInsightsPanel() {
   }, [])
 
   useEffect(() => {
-    void refresh()
+    const initialTimer = window.setTimeout(() => {
+      void refresh()
+    }, 0)
 
     const timer = window.setInterval(() => {
       void refresh()
     }, 5000)
 
-    return () => window.clearInterval(timer)
+    return () => {
+      window.clearTimeout(initialTimer)
+      window.clearInterval(timer)
+    }
   }, [refresh])
 
   async function recordSearch() {

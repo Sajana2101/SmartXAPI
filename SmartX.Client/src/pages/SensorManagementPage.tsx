@@ -62,7 +62,10 @@ onOpenAttachments,
   }
 
   useEffect(() => {
-    loadSensors()
+    const initialTimer = window.setTimeout(() => {
+      void loadSensors()
+    }, 0)
+    return () => window.clearTimeout(initialTimer)
   }, [])
 
   function updateField(

@@ -52,15 +52,24 @@ export default function TelemetryHistoryPanel() {
         )
       }
     }
-    void loadSensors()
+
+    const initialTimer = window.setTimeout(() => {
+      void loadSensors()
+    }, 0)
+    return () => window.clearTimeout(initialTimer)
   }, [])
 
   useEffect(() => {
-    void refresh()
+    const initialTimer = window.setTimeout(() => {
+      void refresh()
+    }, 0)
     const timer = window.setInterval(() => {
       void refresh()
     }, 5000)
-    return () => window.clearInterval(timer)
+    return () => {
+      window.clearTimeout(initialTimer)
+      window.clearInterval(timer)
+    }
   }, [refresh])
 
   const filtered = useMemo(() => {
