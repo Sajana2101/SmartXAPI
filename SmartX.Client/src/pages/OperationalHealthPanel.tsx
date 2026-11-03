@@ -43,7 +43,7 @@ export default function OperationalHealthPanel() {
     try {
       const [healthResponse, alerts, queue, issues] =
         await Promise.all([
-          fetch('https://localhost:7179/api/device-health'),
+          fetch((import.meta.env.VITE_API_BASE_URL ?? 'https://localhost:7179') + '/api/device-health'),
           getDeviceAlertStatus(),
           getTelemetryQueueStatus(),
           getActiveDeviceIssues(),

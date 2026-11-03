@@ -36,7 +36,7 @@ interface InsightsResponse {
   behavior: BehaviorSummary[]
 }
 
-const API = 'https://localhost:7179/api/predictive-insights'
+const API = (import.meta.env.VITE_API_BASE_URL ?? 'https://localhost:7179') + '/api/predictive-insights'
 
 async function readResponse<T>(response: Response): Promise<T> {
   if (!response.ok) {

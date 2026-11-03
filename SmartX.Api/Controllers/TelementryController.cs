@@ -1,4 +1,4 @@
-﻿
+
 using Microsoft.AspNetCore.Mvc;
 using SmartX.Api.DTOs;
 using SmartX.Api.Models;
@@ -49,8 +49,7 @@ namespace SmartX.Api.Controllers
 
             try
             {
-                string baseUrl =
-                    $"{Request.Scheme}://{Request.Host}";
+                string baseUrl = Environment.GetEnvironmentVariable("SMARTX_INTERNAL_API_BASE_URL") ?? $"{Request.Scheme}://{Request.Host}";
 
                 int created = await _seeder.SeedAsync(
                     readingsPerSensor,

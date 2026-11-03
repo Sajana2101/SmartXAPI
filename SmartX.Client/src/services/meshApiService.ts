@@ -65,7 +65,7 @@ export interface CreateMeshLinkRequest {
   rssiDbm: number
 }
 
-const API_BASE_URL = 'https://localhost:7179'
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'https://localhost:7179'
 
 async function request<T>(
   path: string,
