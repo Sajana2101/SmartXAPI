@@ -5,6 +5,7 @@ using SmartX.Api.Services;
 using SmartX.Api.Options;
 using SmartX.Api.Part2.Services;
 using SmartX.Api.Part2.Interfaces;
+using SmartX.Api.Part3.Topology;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -33,7 +34,6 @@ builder.Services.AddSingleton<TelemetrySeeder>();
 builder.Services.AddSingleton<PriorityAlertService>();
 builder.Services.AddSingleton<SortedTelemetryHistoryService>();
 builder.Services.AddSingleton<DeviceIssueTracker>();
-
 builder.Services.AddSingleton<DeviceSearchHistoryService>();
 builder.Services.AddSingleton<DeviceBehaviorAnalysisService>();
 builder.Services.AddSingleton<PredictiveRecommendationService>();
@@ -43,6 +43,7 @@ builder.Services.AddSingleton<
     DeviceCommandService>();
 
 builder.Services.AddSingleton<TelemetryDashboardService>();
+builder.Services.AddSingleton<MeshTopologyService>();
 
 builder.Services.AddHostedService<DeviceFaultMonitoringWorker>();
 
@@ -79,9 +80,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
 app.UseCors("SmartXClient");
-
 app.UseAuthorization();
 
 app.MapControllers();
