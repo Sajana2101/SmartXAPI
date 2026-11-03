@@ -6,7 +6,7 @@ import TelemetryPage from './pages/TelemetryPage'
 import AttachmentsPage from './pages/AttachmentsPage'
 import LiveTelemetryDashboardPage from './pages/LiveTelemetryDashboardPage'
 import Part2Workspace from './pages/Part2Workspace'
-import MeshTopologyPage from './pages/MeshTopologyPage'
+import MeshPart3Workspace from './pages/MeshPart3Workspace'
 import './pages/Part2Dashboard.css'
 
 type AppView =
@@ -33,7 +33,7 @@ function App() {
   function renderExistingPage() {
     if (view === 'mesh') {
       return (
-        <MeshTopologyPage
+        <MeshPart3Workspace
           onBack={() => navigate('dashboard')}
         />
       )
