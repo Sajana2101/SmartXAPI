@@ -6,11 +6,13 @@ import './DashboardPage.css'
 interface DashboardPageProps {
   onOpenSensorModule: () => void
   onOpenCommandCentre: () => void
+  onOpenMeshRouting: () => void
 }
 
 function DashboardPage({
   onOpenSensorModule,
   onOpenCommandCentre,
+  onOpenMeshRouting,
 }: DashboardPageProps) {
   const [apiConnected, setApiConnected] = useState(false)
   const [apiChecked, setApiChecked] = useState(false)
@@ -116,27 +118,28 @@ function DashboardPage({
             </div>
           </article>
 
-          <article className="module-card disabled-card">
+          <article className="module-card active-card">
             <div className="module-number">03</div>
 
             <div className="module-content">
-              <span className="module-status disabled-status">
-                DISABLED
+              <span className="module-status active-status">
+                ACTIVE — PART 3
               </span>
 
               <h3>Network Topology and Mesh Routing</h3>
 
               <p>
-                Smart-X network topology and mesh-routing tools will become
-                available in the final PoE.
+                Visualise sensor connections, calculate minimum-cost
+                networks, inspect gateway routes and simulate automatic
+                recovery after sensor or link failures.
               </p>
 
               <button
-                className="disabled-button"
+                className="primary-button"
                 type="button"
-                disabled
+                onClick={onOpenMeshRouting}
               >
-                Available in Final PoE
+                Open Module
               </button>
             </div>
           </article>

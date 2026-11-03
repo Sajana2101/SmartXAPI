@@ -1,12 +1,12 @@
 
 import { useState } from 'react'
-
 import DashboardPage from './pages/DashboardPage'
 import SensorManagementPage from './pages/SensorManagementPage'
 import TelemetryPage from './pages/TelemetryPage'
 import AttachmentsPage from './pages/AttachmentsPage'
 import LiveTelemetryDashboardPage from './pages/LiveTelemetryDashboardPage'
 import Part2Workspace from './pages/Part2Workspace'
+import MeshTopologyPage from './pages/MeshTopologyPage'
 import './pages/Part2Dashboard.css'
 
 type AppView =
@@ -16,11 +16,10 @@ type AppView =
   | 'attachments'
   | 'live'
   | 'part2'
+  | 'mesh'
 
 function App() {
-  const [view, setView] =
-    useState<AppView>('dashboard')
-
+  const [view, setView] = useState<AppView>('dashboard')
   const [part2Visited, setPart2Visited] = useState(false)
 
   function navigate(next: AppView) {
@@ -32,6 +31,14 @@ function App() {
   }
 
   function renderExistingPage() {
+    if (view === 'mesh') {
+      return (
+        <MeshTopologyPage
+          onBack={() => navigate('dashboard')}
+        />
+      )
+    }
+
     if (view === 'telemetry') {
       return (
         <TelemetryPage
@@ -71,6 +78,7 @@ function App() {
       <DashboardPage
         onOpenSensorModule={() => navigate('sensors')}
         onOpenCommandCentre={() => navigate('part2')}
+        onOpenMeshRouting={() => navigate('mesh')}
       />
     )
   }
@@ -96,10 +104,12 @@ function App() {
               Sensors
             </button>
 
-            <button
-              onClick={() => navigate('part2')}
-            >
+            <button onClick={() => navigate('part2')}>
               Command Centre
+            </button>
+
+            <button onClick={() => navigate('mesh')}>
+              Mesh Network
             </button>
           </div>
         </div>
