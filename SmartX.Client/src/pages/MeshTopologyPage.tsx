@@ -112,20 +112,30 @@ function MeshTopologyPage({ onBack }: MeshTopologyPageProps) {
     )
   }, [routing, displayMode, activeSelectedId])
 
+  
   const positions = useMemo(() => {
     const result = new Map<string, Position>()
-
     if (!topology) {
       return result
     }
 
     const gateway = topology.nodes.find(node => node.isGateway)
+    const devices = topology.nodes.filter(node => !node.isGateway)
+
+    if (devices.length === 2) {
+      if (gateway) {
+        result.set(gateway.id.toLowerCase(), { x: 460, y: 385 })
+      }
+
+      result.set(devices[0].id.toLowerCase(), { x: 230, y: 150 })
+      result.set(devices[1].id.toLowerCase(), { x: 690, y: 150 })
+
+      return result
+    }
 
     if (gateway) {
       result.set(gateway.id.toLowerCase(), { x: 460, y: 260 })
     }
-
-    const devices = topology.nodes.filter(node => !node.isGateway)
 
     devices.forEach((node, index) => {
       const ring = Math.floor(index / 12)
@@ -144,6 +154,7 @@ function MeshTopologyPage({ onBack }: MeshTopologyPageProps) {
 
     return result
   }, [topology])
+
 
   const nodeLookup = useMemo(
     () => new Map(
